@@ -1,0 +1,12 @@
+# Normalize line endings so Windows/Linux team members don't get spurious diffs
+* text=auto eol=lf
+
+# Explicitly treat binary assets as binary (do NOT diff/merge)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.sdf  binary
+*.dae  binary
+*.stl  binary
+*.bag  binary
+*.db3  binary

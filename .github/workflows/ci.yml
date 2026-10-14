@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: Build ROS 2 package
+    runs-on: ubuntu-24.04
+    container: ros:jazzy          # Ubuntu 24.04 + ROS 2 Jazzy image
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y python3-colcon-common-extensions \
+                             ros-jazzy-geometry-msgs ros-jazzy-nav-msgs
+
+      - name: Build workspace
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          cd ros2_ws
+          colcon build --event-handlers console_cohesion+
+
+  lint:
+    name: Lint Python
+    runs-on: ubuntu-24.04
+    container: ros:jazzy
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install flake8
+        run: apt-get update && apt-get install -y python3-flake8
+      - name: Run flake8
+        run: |
+          cd ros2_ws/src/drone_control
+          python3 -m flake8 drone_control/ launch/ --count --show-source --statistics
