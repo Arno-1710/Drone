@@ -11,7 +11,9 @@
 #   ./start_sim.sh              # full stack
 #   ./start_sim.sh --no-nodes   # sim + bridge only, no your-nodes
 # ---------------------------------------------------------------------------
-set -euo pipefail
+set -eo pipefail
+# Note: NOT using -u (nounset) here — ROS 2 setup.bash files reference
+# unset variables (e.g. AMENT_TRACE_SETUP_FILES) and break under set -u.
 
 PX4_DIR=/workspace/PX4-Autopilot
 DRONE_WS=/workspace/drone-sim/ros2_ws
@@ -39,8 +41,12 @@ AGENT_PID=$!
 # --- Your ROS 2 nodes --------------------------------------------------------
 if [[ "${1:-}" != "--no-nodes" ]]; then
     echo "==> [3/3] Building + launching drone_control nodes..."
-    (cd "$DRONE_WS" && colcon build && source install/setup.bash) || \
+    # Build in a subshell, but source the result in the PARENT shell so
+    # 'ros2 launch' below can find the drone_control package.
+    (cd "$DRONE_WS" && colcon build) || \
         echo "    (colcon build failed — check your package)"
+    # shellcheck disable=SC1091
+    source "$DRONE_WS/install/setup.bash"
     sleep 2
     ros2 launch drone_control drone_control_launch.py &
     NODES_PID=$!
