@@ -1,0 +1,26 @@
+services:
+  sim:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: drone-sim:jazzy
+    container_name: drone-sim
+    # Needed for Gazebo GUI + device access
+    privileged: true
+    network_mode: host
+    environment:
+      - DISPLAY=${DISPLAY}
+      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}
+      - QT_QPA_PLATFORM=xcb          # force X11 (works via XWayland on the host)
+      # Software rendering (no GPU) — keeps Gazebo working on Intel UHD
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - GALLIUM_DRIVER=llvmpipe
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw    # X socket for GUI
+      - ${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}:rw   # Wayland/X auth
+      - ../:/workspace/drone-sim:rw          # your repo (code)
+      - ${PX4_DIR:-/home/os/PX4-Autopilot}:/workspace/PX4-Autopilot:rw
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    command: bash -lc "source /opt/ros/jazzy/setup.bash && exec bash"
