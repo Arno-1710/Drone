@@ -40,6 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && cmake -S Micro-XRCE-DDS-Agent -B Micro-XRCE-DDS-Agent/build -DCMAKE_BUILD_TYPE=Release \
     && cmake --build Micro-XRCE-DDS-Agent/build -j"$(nproc)" \
     && cmake --install Micro-XRCE-DDS-Agent/build \
+    && ldconfig \
     && rm -rf Micro-XRCE-DDS-Agent /var/lib/apt/lists/*
 
 WORKDIR /workspace

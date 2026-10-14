@@ -26,7 +26,14 @@ PX4_PID=$!
 
 echo "==> [2/3] Starting Micro XRCE-DDS Agent (udp4 port 8888)..."
 sleep 5   # give PX4 a moment to come up
-micro-xrce-dds-agent udp4 -p 8888 &
+# v3.0.2 installs the binary as MicroXRCEAgent (v2 called it micro-xrce-dds-agent)
+if command -v MicroXRCEAgent >/dev/null 2>&1; then
+    MicroXRCEAgent udp4 -p 8888 &
+elif command -v micro-xrce-dds-agent >/dev/null 2>&1; then
+    micro-xrce-dds-agent udp4 -p 8888 &
+else
+    echo "    ERROR: XRCE agent binary not found"; exit 1
+fi
 AGENT_PID=$!
 
 # --- Your ROS 2 nodes --------------------------------------------------------
