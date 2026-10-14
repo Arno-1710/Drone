@@ -59,10 +59,11 @@ Jazzy packages. PX4 is expected at `~/PX4-Autopilot`.
 xhost +local:docker
 
 # Build + enter the container (first run builds the image)
-./docker/run.sh
+cd ~/drone-sim/docker
+./run.sh
 
-# --- inside the container ---
-./start_sim.sh          # boots PX4 + Gazebo + XRCE agent + your nodes
+# --- inside the container (repo is mounted at /workspace/drone-sim) ---
+./drone-sim/docker/start_sim.sh    # boots PX4 + Gazebo + XRCE agent + your nodes
 # then type into the command node:  takeoff / x 1 / y 5 / z 2
 ```
 
