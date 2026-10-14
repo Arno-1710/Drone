@@ -4,6 +4,15 @@ FROM osrf/ros:jazzy-desktop
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# --- OSRF Gazebo repo (gz-harmonic is NOT in the Ubuntu/ROS repos) ----------
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        wget lsb-release ca-certificates gnupg \
+    && wget -q https://packages.osrfoundation.org/gazebo.gpg \
+        -O /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" \
+        > /etc/apt/sources.list.d/pkgs-osrf-archive-keyring.list \
+    && rm -rf /var/lib/apt/lists/*
+
 # Gazebo Harmonic + ROS<->Gazebo bridge + build tools + PX4 deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gz-harmonic \
