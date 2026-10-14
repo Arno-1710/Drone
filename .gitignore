@@ -1,0 +1,37 @@
+# ---- ROS 2 colcon workspace artifacts ----
+build/
+install/
+log/
+*.pyc
+__pycache__/
+*.egg-info/
+
+# ---- Python ----
+.venv/
+venv/
+*.py[cod]
+
+# ---- PX4 ----
+# PX4-Autopilot is a separate huge repo; don't track it here
+PX4-Autopilot/
+build/px4/
+
+# ---- Gazebo / Ignition caches ----
+.ignition/
+.gazebo/
+*.log
+
+# ---- Micro XRCE-DDS Agent ----
+# (built separately; not part of this repo)
+
+# ---- Editor / OS noise ----
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# ---- Large binary assets (track with Git LFS instead) ----
+# Uncomment the next two lines after running `git lfs install`
+# *.sdf
+# *.dae
+# *.stl
