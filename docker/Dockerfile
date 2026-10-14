@@ -43,6 +43,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && ldconfig \
     && rm -rf Micro-XRCE-DDS-Agent /var/lib/apt/lists/*
 
+# --- PX4 build dependencies (Python) ----------------------------------------
+# PX4's SITL build needs kconfiglib (menuconfig), empy, jinja2, etc.
+# Snapshot of PX4-Autopilot/Tools/setup/requirements.txt kept in this context.
+COPY px4-requirements.txt /tmp/px4-requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r /tmp/px4-requirements.txt \
+    && rm -f /tmp/px4-requirements.txt
+
+# PX4 checks out under a host user but the container runs as root -> silence
+# git "dubious ownership" so the build doesn't warn/fail on the mounted repo.
+RUN git config --global --add safe.directory '*'
+
 WORKDIR /workspace
 
 # Source ROS 2 + mount-point for the repos (overridden by docker-compose)
