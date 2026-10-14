@@ -29,10 +29,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         vim \
     && rm -rf /var/lib/apt/lists/*
 
-# Micro XRCE-DDS Agent (connects PX4 <-> ROS 2)
+# --- Micro XRCE-DDS Agent v3.0.2 (connects PX4 <-> ROS 2) -------------------
+# Not packaged for Jazzy in apt; build from source. v3 matches PX4's
+# UXRCE_DDS_CLIENT_USE_DDS_V3 client (see boards/px4/sitl/default.px4board).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        ros-jazzy-micro-xrce-dds-agent \
-    && rm -rf /var/lib/apt/lists/*
+        build-essential cmake git ca-certificates \
+        ros-jazzy-rosidl-default-generators ros-jazzy-rosidl-default-runtime \
+        libasio-dev libtinyxml2-dev \
+    && git clone -q -b v3.0.2 --depth 1 https://github.com/eProsima/Micro-XRCE-DDS-Agent.git \
+    && cmake -S Micro-XRCE-DDS-Agent -B Micro-XRCE-DDS-Agent/build -DCMAKE_BUILD_TYPE=Release \
+    && cmake --build Micro-XRCE-DDS-Agent/build -j"$(nproc)" \
+    && cmake --install Micro-XRCE-DDS-Agent/build \
+    && rm -rf Micro-XRCE-DDS-Agent /var/lib/apt/lists/*
 
 WORKDIR /workspace
 
