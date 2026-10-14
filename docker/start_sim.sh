@@ -42,16 +42,26 @@ AGENT_PID=$!
 if [[ "${1:-}" != "--no-nodes" ]]; then
     echo "==> [3/3] Building + launching drone_control nodes..."
     # Build in a subshell, but source the result in the PARENT shell so
-    # 'ros2 launch' below can find the drone_control package.
+    # ros2 can find the drone_control package.
     (cd "$DRONE_WS" && colcon build) || \
         echo "    (colcon build failed — check your package)"
     # shellcheck disable=SC1091
     source "$DRONE_WS/install/setup.bash"
     sleep 2
-    ros2 launch drone_control drone_control_launch.py &
+
+    # position_node -> background (just listens to odometry)
+    ros2 run drone_control position_node &
     NODES_PID=$!
+
+    # command_node -> FOREGROUND, so your keyboard reaches it and you can
+    # actually type:  takeoff / offboard / arm / x 1 / y 5 / z -2 / land
+    echo "    Interactive command_node below — type commands, Ctrl-C to stop."
+    echo ""
+    ros2 run drone_control command_node
 else
     echo "==> [3/3] Skipping nodes (--no-nodes)."
+    trap 'echo "Shutting down..."; kill 0 2>/dev/null; wait 2>/dev/null' INT TERM
+    wait
 fi
 
 echo ""
