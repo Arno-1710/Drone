@@ -35,3 +35,7 @@ build/px4/
 # *.sdf
 # *.dae
 # *.stl
+
+# cloned ROS message package (dependency, not our code)
+ros2_ws/src/px4_msgs/
+ros2_ws/src/px4-ros2-interface-lib/

@@ -1,30 +1,36 @@
 """Position node: reads the drone's live position over ROS 2.
 
-Subscribes to the PX4 odometry topic (relayed by the Micro XRCE-DDS agent)
-and prints the current local position (x, y, z in metres).
+Subscribes to PX4's VehicleOdometry (relayed by the Micro XRCE-DDS agent)
+and prints the current local position in metres.
+
+Note: PX4 reports position in the NED frame (North-East-Down):
+    x = North, y = East, z = Down (so altitude is NEGATIVE z).
 """
 
 import rclpy
 from rclpy.node import Node
-from nav_msgs.msg import Odometry
+from px4_msgs.msg import VehicleOdometry
 
 
 class PositionNode(Node):
     def __init__(self):
         super().__init__('position_node')
-        # PX4 publishes odometry over uXRCE-DDS. Adjust the topic to match
-        # your setup (check `ros2 topic list`).
+        # PX4 publishes odometry over uXRCE-DDS on this topic.
         self.subscription = self.create_subscription(
-            Odometry,
+            VehicleOdometry,
             '/fmu/out/vehicle_odometry',
             self.odom_callback,
             10,
         )
-        self.get_logger().info('position_node started, listening for odometry...')
+        self.get_logger().info('position_node started, listening for VehicleOdometry...')
 
-    def odom_callback(self, msg: Odometry):
-        p = msg.pose.pose.position
-        self.get_logger().info(f'Position -> x: {p.x:.2f}  y: {p.y:.2f}  z: {p.z:.2f}')
+    def odom_callback(self, msg: VehicleOdometry):
+        # position is float32[3] in NED metres: [north, east, down]
+        x, y, z = msg.position
+        # altitude = -down
+        self.get_logger().info(
+            f'NED x: {x:.2f}  y: {y:.2f}  z: {z:.2f}  (alt {-z:.2f} m)'
+        )
 
 
 def main(args=None):
